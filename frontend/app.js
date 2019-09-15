@@ -1,4 +1,5 @@
-var BaseApiUrl = "http://chopoweb.000webhostapp.com/lab3crud/index.php/api/";
+//var BaseApiUrl = "https://chopoweb.000webhostapp.com/lab3crud/index.php/api/";
+var BaseApiUrl = "http://192.168.8.103/AsignacionUno/backend/index.php/api/";
 var ws;
 
 function buildUrl(service){
