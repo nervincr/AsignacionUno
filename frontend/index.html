@@ -31,21 +31,15 @@
      <b-container> 
         <b-row class="justify-content-md-center">
             <b-col>
-                <b-navbar type="dark" variant="dark">
-                    <b-navbar-nav class="mr-auto">
-                        <b-nav-item href="#">
-                            <b-img src="https://placekitten.com/g/30/30" height="30" width="30" class="d-inline-block align-top" rounded="circle" alt="Circle image"></b-img>
-                        </b-nav-item>
-                        <b-nav-item href="#">{{user.username}}</b-nav-item>
-                    </b-navbar-nav>
-                    <b-navbar-nav class="ml-auto">
-                            <b-nav-item>
-                                <b-button @click="logout()" size="sm" variant="outline-danger">X</b-button>
+                <template v-if="!user.id">
+                    <b-navbar type="dark" variant="dark">
+                        <b-navbar-nav class="mr-auto">
+                            <b-nav-item href="#">
                             </b-nav-item>
                         </b-navbar-nav>
-                </b-navbar>
-
-                <template v-if="!user.id">
+                        <b-navbar-nav class="ml-auto">
+                        </b-navbar-nav>
+                    </b-navbar>
                     <div class="jumbotron">
                         <form @submit="submitLoginData">
                             <div class="form-group">
@@ -59,11 +53,24 @@
                     </div>
                 </template>
                 <template v-else>
+                    <b-navbar type="dark" variant="dark">
+                        <b-navbar-nav class="mr-auto">
+                            <b-nav-item href="#">
+                                <b-img :src="user.image ? user.image : 'https://placekitten.com/g/30/30'" height="30" width="30" class="d-inline-block align-top" rounded="circle" alt="Circle image"></b-img>
+                            </b-nav-item>
+                            <b-nav-item href="#">{{user.username}}</b-nav-item>
+                        </b-navbar-nav>
+                        <b-navbar-nav class="ml-auto">
+                                <b-nav-item>
+                                    <b-button @click="logout()" size="sm" variant="outline-danger">X</b-button>
+                                </b-nav-item>
+                            </b-navbar-nav>
+                    </b-navbar>
                     <div class="jumbotron">
                         <form @submit="submitData">
                             <div class="form-group">
                                 <b-input-group class="mt-3">
-                                    <b-form-input v-model="post.text" placeholder="¿Que hay en tu mente? o ¿Que deseas buscar?"></b-form-input>
+                                    <b-form-input ref="posttext" v-model="post.text" placeholder="¿Que hay en tu mente? o ¿Que deseas buscar?"></b-form-input>
                                     <b-input-group-append>
                                         <b-button @click="search()" variant="outline-dark">Buscar</b-button>
                                     </b-input-group-append>
@@ -80,18 +87,21 @@
                     >
                         <b-card-body>
                             <b-card-title>
-                                <b-img src="https://placekitten.com/g/30/30" height="30" width="30" rounded="circle" alt="Circle image"></b-img>
+                                <b-img :src="item.image ? item.image : 'https://placekitten.com/g/30/30'" height="30" width="30" rounded="circle" alt="Circle image"></b-img>
                                 {{item.username}}
                             </b-card-title>
                             <b-card-text>
                                 {{item.text}}
                             </b-card-text>
-                            <b-button size="sm" variant="outline-dark">Responder</b-button>
+                            <b-button size="sm" @click="getResponseData(item.id)" variant="outline-dark">Responder</b-button>
                             <b-button v-if="item.userid === user.id" size="sm" @click="getEditData(item.id)" variant="outline-dark">Editar</b-button>
                             <b-button v-if="item.userid === user.id" size="sm" @click="deleteData(item.id)" variant="outline-dark">Eliminar</b-button>
                             <b-card-text>
-                                <b-button block v-b-toggle.collapse-1-inner size="sm" variant="outline-dark" class="mt-2">Comentarios</b-button>
-                                <b-collapse id="collapse-1-inner" class="mt-2">
+                                <b-button block v-b-toggle="'collapse-' + item.id" size="sm" variant="outline-dark" class="mt-2">
+                                    Comentarios
+                                    <b-badge variant="light">{{item.comments.length}}</b-badge>
+                                </b-button>
+                                <b-collapse :id="'collapse-' + item.id" class="mt-2">
                                     <b-card
                                     no-body
                                     v-for="itemc in item.comments"
@@ -100,14 +110,14 @@
                                     >
                                         <b-card-body>
                                             <b-card-title>
-                                                <b-img src="https://placekitten.com/g/30/30" height="30" width="30" rounded="circle" alt="Circle image"></b-img>
+                                                <b-img :src="itemc.image ? itemc.image : 'https://placekitten.com/g/30/30'" height="30" width="30" rounded="circle" alt="Circle image"></b-img>
                                                 {{itemc.username}}
                                             </b-card-title>
                                             <b-card-text>
                                                 {{itemc.text}}
                                             </b-card-text>
-                                            <b-button v-if="item.userid === user.id" size="sm" @click="getEditData(itemc.id)" variant="outline-dark">Editar</b-button>
-                                            <b-button v-if="item.userid === user.id" size="sm" @click="deleteData(itemc.id)" variant="outline-dark">Eliminar</b-button>
+                                            <b-button v-if="itemc.userid === user.id" size="sm" @click="getEditData(itemc.id)" variant="outline-dark">Editar</b-button>
+                                            <b-button v-if="itemc.userid === user.id" size="sm" @click="deleteData(itemc.id)" variant="outline-dark">Eliminar</b-button>
                                         </b-card-body>
                                         <b-card-footer>
                                             <small class="text-muted">{{itemc.created_at}}</small>

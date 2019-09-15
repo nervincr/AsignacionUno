@@ -11,13 +11,14 @@ window.onload = function(){
         el: '#app',
         data: {
             user: {
-                /*id: '',
+                id: '',
                 username: '',
-                password: ''*/
-                id: '1',
+                password: '',
+                image:''
+                /*id: '1',
                 username: 'sebas',
                 password: '123',
-                image:''
+                image:''*/
             },
             post: {
                 id: '',
@@ -27,7 +28,8 @@ window.onload = function(){
                 image: '',
                 text: '',
                 created_at: '',
-                comments: []
+                comments: [],
+                showCollapse: false
             },
             posts: [],
             filteredPost: []
@@ -57,6 +59,8 @@ window.onload = function(){
                             toastr.error("Error iniciando sesión");
                         } else{
                             this.user.id = response.data.id;
+                            this.user.username = response.data.username;
+                            this.user.image = response.data.image;
                             toastr.success("Logeado con éxito");
                         }
                         this.getData();
@@ -69,12 +73,12 @@ window.onload = function(){
                 this.user.id = '';
                 this.user.username = '';
                 this.user.password = '';
+                this.user.image = '';
+                this.clearPost();
             },
             search(){
                 this.filteredPost = this.posts.filter(
-                    data => data.text.toLowerCase().includes(this.post.text.toLowerCase()) &&
-                    data.postid === null
-                );
+                    data => data.text.toLowerCase().includes(this.post.text.toLowerCase()));
             },
             submitData(evt){
                 evt.preventDefault();
@@ -84,20 +88,20 @@ window.onload = function(){
                     } else {
                         this.addData();                    
                     }
-                    this.cleanPost();
                 } else {
                     toastr.error("Datos requeridos!");
                 }
             },
-            cleanPost(){
+            clearPost(){
                 this.post.id = '';
-                this.post.postid = '';
+                this.post.postid = null;
                 this.post.userid = '';
-                this.username = '';
-                this.post.text = '';
+                this.post.username = '';
                 this.post.image = '';
+                this.post.text = '';
                 this.post.created_at = '';
-                this.comments = [];
+                this.post.comments = [];
+                this.post.showCollapse = false;
             },
             deleteData(id){
                 axios.get(buildUrl('posts/deleteposts/' + id)).then((response) => {
@@ -110,10 +114,13 @@ window.onload = function(){
                 var formdata = new FormData();
                 formdata.append('text',this.post.text);
                 formdata.append('userid',this.user.id);
+                if (this.post.postid)
+                    formdata.append('postid',this.post.postid);
                 axios.post(
                     buildUrl('posts/insertposts'), formdata
                 ).then((response) => {
                     ws.send("add");
+                    this.clearPost();
                     this.getData();
                     toastr.success("La publicación fue agregada con éxito");
                 }).catch(error => {console.log(error)});
@@ -123,14 +130,21 @@ window.onload = function(){
                 formdata.append('id',this.post.id);
                 formdata.append('text',this.post.text);
                 formdata.append('userid',this.user.id);
+                if (this.post.postid)
+                    formdata.append('postid',this.post.postid);
                 axios.post(
                     buildUrl('posts/updateposts'), formdata
                 ).then((response) => {
                     ws.send("update");
+                    this.clearPost();
                     this.getData();
                     toastr.success("La publicación fue actualizada con éxito");
                 }).catch(error => {console.log(error)});
             }, 
+            getResponseData(id){
+                this.post.postid = id;
+                this.$refs.posttext.$el.focus();
+            },
             getEditData(id){
                 axios.get(buildUrl('posts/getposts/' + id)).then((response) => {
                     this.post.id = response.data.id;
@@ -140,7 +154,7 @@ window.onload = function(){
                     this.post.username = response.data.username;
                     this.post.comments = response.data.comments;
                     this.post.created_at = response.data.created_at;
-                    this.post.image = response.data.image;
+                    this.$refs.posttext.$el.focus();
                 }).catch(error => {console.log(error)});
             },
             MyWebSocketCall() {
