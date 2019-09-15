@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8" />
+    <title>API REST APP</title>
+    <script src="https://unpkg.com/vue"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script src="https://unpkg.com/bootstrap-vue@2.0.0-rc.28/dist/bootstrap-vue.js"></script>
+    <script src="https://unpkg.com/jquery@3.4.1/dist/jquery.js"></script>
+    <script src="https://unpkg.com/toastr@2.1.4/build/toastr.min.js"></script>
+    <script src="app.js"></script>
+    <link
+        rel="stylesheet"
+        href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+        crossorigin="anonymous"
+    />
+    <link
+        rel="stylesheet"
+        href="https://unpkg.com/bootstrap-vue@0.15.8/dist/bootstrap-vue.css"
+        crossorigin="anonymous"
+    />
+    <link
+        rel="stylesheet"
+        href="https://unpkg.com/toastr@2.1.4/build/toastr.min.css"
+        crossorigin="anonymous"
+    />
+
+</head>
+<body>
+ <div id="app">
+     <b-container> 
+        <b-row class="justify-content-md-center">
+            <b-col>
+                <b-navbar type="dark" variant="dark">
+                    <b-navbar-nav class="mr-auto">
+                        <b-nav-item href="#">
+                            <b-img src="https://placekitten.com/g/30/30" height="30" width="30" class="d-inline-block align-top" rounded="circle" alt="Circle image"></b-img>
+                        </b-nav-item>
+                        <b-nav-item href="#">{{user.username}}</b-nav-item>
+                    </b-navbar-nav>
+                    <b-navbar-nav class="ml-auto">
+                            <b-nav-item>
+                                <b-button @click="logout()" size="sm" variant="outline-danger">X</b-button>
+                            </b-nav-item>
+                        </b-navbar-nav>
+                </b-navbar>
+
+                <template v-if="!user.id">
+                    <div class="jumbotron">
+                        <form @submit="submitLoginData">
+                            <div class="form-group">
+                                <b-input-group class="mt-3">
+                                        <b-form-input v-model="user.username" placeholder="Usuario" id="Usuario" type="text"></b-form-input>
+                                        <b-form-input v-model="user.password" placeholder="Contraseña" id="Contrasena" type="password"></b-form-input>
+                                </b-input-group>
+                                <b-button block variant="outline-dark" type="submit" class="mt-2">Iniciar</b-button>
+                            </div>
+                        </form>
+                    </div>
+                </template>
+                <template v-else>
+                    <div class="jumbotron">
+                        <form @submit="submitData">
+                            <div class="form-group">
+                                <b-input-group class="mt-3">
+                                    <b-form-input v-model="post.text" placeholder="¿Que hay en tu mente? o ¿Que deseas buscar?"></b-form-input>
+                                    <b-input-group-append>
+                                        <b-button @click="search()" variant="outline-dark">Buscar</b-button>
+                                    </b-input-group-append>
+                                </b-input-group>
+                                <b-button block variant="outline-dark" type="submit" class="mt-2">Publicar</b-button>
+                            </div>
+                        </form>
+                    </div>
+                    <b-card
+                    no-body
+                    v-for="item in filteredPost"
+                    v-bind:key="item.id"
+                    class="mb-2"
+                    >
+                        <b-card-body>
+                            <b-card-title>
+                                <b-img src="https://placekitten.com/g/30/30" height="30" width="30" rounded="circle" alt="Circle image"></b-img>
+                                {{item.username}}
+                            </b-card-title>
+                            <b-card-text>
+                                {{item.text}}
+                            </b-card-text>
+                            <b-button size="sm" variant="outline-dark">Responder</b-button>
+                            <b-button v-if="item.userid === user.id" size="sm" @click="getEditData(item.id)" variant="outline-dark">Editar</b-button>
+                            <b-button v-if="item.userid === user.id" size="sm" @click="deleteData(item.id)" variant="outline-dark">Eliminar</b-button>
+                            <b-card-text>
+                                <b-button block v-b-toggle.collapse-1-inner size="sm" variant="outline-dark" class="mt-2">Comentarios</b-button>
+                                <b-collapse id="collapse-1-inner" class="mt-2">
+                                    <b-card
+                                    no-body
+                                    v-for="itemc in item.comments"
+                                    v-bind:key="itemc.id"
+                                    class="mb-2 mt-2"
+                                    >
+                                        <b-card-body>
+                                            <b-card-title>
+                                                <b-img src="https://placekitten.com/g/30/30" height="30" width="30" rounded="circle" alt="Circle image"></b-img>
+                                                {{itemc.username}}
+                                            </b-card-title>
+                                            <b-card-text>
+                                                {{itemc.text}}
+                                            </b-card-text>
+                                            <b-button v-if="item.userid === user.id" size="sm" @click="getEditData(itemc.id)" variant="outline-dark">Editar</b-button>
+                                            <b-button v-if="item.userid === user.id" size="sm" @click="deleteData(itemc.id)" variant="outline-dark">Eliminar</b-button>
+                                        </b-card-body>
+                                        <b-card-footer>
+                                            <small class="text-muted">{{itemc.created_at}}</small>
+                                        </b-card-footer>
+                                    </b-card>
+                                </b-collapse>
+                            </b-card-text>
+                        </b-card-body>
+                        <b-card-footer>
+                            <small class="text-muted">{{item.created_at}}</small>
+                        </b-card-footer>
+                    </b-card>
+                </template>
+
+                <footer class="page-footer font-small blue">
+                    <div class="footer-copyright text-center py-3">© 2019 Copyright:
+                        <a href="#">Nervin Quesada</a>
+                        <a href="#">Sebastian Vargas</a>
+                    </div>    
+                </footer>
+            </b-col>
+        </b-row>
+    </b-container>
+</body>
+</html>
