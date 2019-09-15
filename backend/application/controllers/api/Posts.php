@@ -11,40 +11,6 @@ class Posts extends REST_Controller {
         $this->load->database();
     }
 
-    /*if(!empty($id)){
-        $data = $this->db->get_where('posts', ['id' => $id])->row_array();
-    }else{
-        $data = $this->db->get('posts')->result();
-    }*/
-    /*public function getPosts_get()
-    {
-        $id = $this->uri->segment(4);
-
-        // Publicaciones
-        $this->db->select('posts.id, posts.text, posts.created_at, posts.userid, posts.postid, users.username, users.image');
-        $this->db->from('posts');
-        $this->db->join('users', 'posts.userid = users.id');
-
-        if(!empty($id))
-            $this->db->where('posts.id', $id);
-        
-        $data = $this->db->get()->result_array();
-
-        // Comentarios
-        foreach ($data as $key => $value) {
-            $this->db->select('posts.id, posts.text, posts.created_at, posts.userid, posts.postid, users.username, users.image');
-            $this->db->from('posts');
-            $this->db->join('users', 'posts.userid = users.id');
-            $this->db->where('posts.postid', $id);
-            $data[$key]['comments'] = $this->db->get()->result();
-        }
-
-        if(!$data)
-            $data = 'No hay registros con este ID.';
-
-        $this->response($data, REST_Controller::HTTP_OK);
-    }*/
-
     public function getPosts_get()
     {
         $id = $this->uri->segment(4);
@@ -75,10 +41,7 @@ class Posts extends REST_Controller {
             }
         }
 
-        if(!$data)
-            $data = 'No hay registros con este ID.';
-
-        $this->response($data, REST_Controller::HTTP_OK);
+        $this->response($data);
     }
 
     public function insertPosts_post()
@@ -86,7 +49,7 @@ class Posts extends REST_Controller {
         $data = $this->input->post();
 
         if($this->db->insert('posts', $data))
-            $this->response('Item creado con éxito.', REST_Controller::HTTP_OK); 
+            $this->response($data, REST_Controller::HTTP_CREATED); 
     }
 
     public function updatePosts_post()
@@ -95,7 +58,7 @@ class Posts extends REST_Controller {
         $data = $this->input->post();
 
         if($this->db->update('posts', $data, array('id'=>$id)))
-            $this->response('Item actualizado con éxito.', REST_Controller::HTTP_OK);
+            $this->response(NULL, REST_Controller::HTTP_NO_CONTENT);
     }
 
     public function deletePosts_get()
@@ -104,6 +67,6 @@ class Posts extends REST_Controller {
 
         if($this->db->delete('posts', array('postid'=>$id)) &&
             $this->db->delete('posts', array('id'=>$id)))
-            $this->response('Item eliminado con éxito.', REST_Controller::HTTP_OK);
+            $this->response(NULL, REST_Controller::HTTP_NO_CONTENT);
     }
 }
