@@ -1,4 +1,4 @@
-//var BaseApiUrl = "https://chopoweb.000webhostapp.com/lab3crud/index.php/api/"; Api publicada funcional.
+//var BaseApiUrl = "https://chopoweb.000webhostapp.com/lab3crud/index.php/api/"; //Api publicada funcional.
 var BaseApiUrl = "http://192.168.8.103/AsignacionUno/backend/index.php/api/";
 var ws;
 
