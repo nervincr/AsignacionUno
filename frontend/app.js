@@ -1,4 +1,4 @@
-//var BaseApiUrl = "https://chopoweb.000webhostapp.com/lab3crud/index.php/api/";
+//var BaseApiUrl = "https://chopoweb.000webhostapp.com/lab3crud/index.php/api/"; Api publicada funcional.
 var BaseApiUrl = "http://192.168.8.103/AsignacionUno/backend/index.php/api/";
 var ws;
 
@@ -16,10 +16,6 @@ window.onload = function(){
                 username: '',
                 password: '',
                 image:''
-                /*id: '1',
-                username: 'sebas',
-                password: '123',
-                image:''*/
             },
             post: {
                 id: '',
@@ -55,7 +51,6 @@ window.onload = function(){
                     axios.post(
                         buildUrl('users/login'), formdata
                     ).then((response) => {
-                        //ws.send("add");
                         if(response.data === 'error') {
                             toastr.error("Error iniciando sesión");
                         } else{
@@ -161,34 +156,27 @@ window.onload = function(){
             MyWebSocketCall() {
                 if ("WebSocket" in window) {
                     console.log("WebSocket is supported by your Browser!");
-                    // Let us open a web socket
-                    //personalizamos la url con nuestro propio room_id
                     //wss://connect.websocket.in/YOUR_CHANNEL_ID?room_id=YOUR_ROOM_ID
                     ws = new WebSocket("wss://connect.websocket.in/nervinlicweb?room_id=9999");
                     ws.onopen = function() {
-                    // Web Socket is connected, send data using send()
-                    ws.send("open");
-                    console.log("WebSocket is open...");
+                        ws.send("open");
+                        console.log("WebSocket is open...");
                     };
                     ws.onmessage = function (evt) {
-                    //cada vez que se invoca el ws.send() se recibe una respuesta de forma asincrónica
-                    vm.getData();
-                    console.log("Message is received: " + evt.data); //evt.data contiene el msj recibido
+                        vm.getData();
+                        console.log("Message is received: " + evt.data);
                     };
                     ws.onclose = function() {
-                    // websocket is closed.
-                    console.log("Connection is closed...");
+                        console.log("Connection is closed...");
                     };
                 } else {
-                    // The browser doesn't support WebSocket
                     alert("WebSocket NOT supported by your Browser!");
                 }
             }
         }
-      });
+    });
 }
 function onDeviceReady() {
-    // Register the event listener
     document.addEventListener("backbutton", onBackKeyDown, false);
 }
 
@@ -198,13 +186,11 @@ function onConfirm(buttonIndex) {
     }
 }
 
-// Handle the back button
-//
 function onBackKeyDown() {
     navigator.notification.confirm(
-        '¿Está seguro que desea salir?',  // message
-        onConfirm,              // callback to invoke with index of button pressed
-        'Salir de myApp',            // title
-        'No,Sí'         // buttonLabels
+        '¿Está seguro que desea salir?',
+        onConfirm,
+        'Salir de myApp',
+        'No,Sí'
     );
 }
